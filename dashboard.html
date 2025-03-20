@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: url('img/sem.jpg') no-repeat center center/cover;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 35px;
+            font-weight: bolder;
+            margin: 20px 0;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            width: 80%;
+            justify-content: center;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        /* Courses Container */
+        .courses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            width: 80%;
+            padding: 30px 0;
+        }
+        
+
+        /* Course Cards */
+        .course {
+            flex: 1 1 calc(40% - 50px);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            min-height: 130px;
+            font-size: 18px;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+
+        .course:hover {
+            transform: scale(1.05);
+        }
+
+        .course h3 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .courses {
+                width: 90%;
+            }
+            .course {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                justify-content: flex-start;
+                padding-top: 10px;
+            }
+            .controls {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            input, select {
+                width: 90%;
+                padding: 8px;
+                font-size: 14px;
+            }
+            .courses {
+                flex-direction: column;
+                width: 100%;
+                padding: 20px;
+            }
+            .course {
+                flex: 1 1 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+            .logout-btn {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                padding: 8px 14px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
+            .course {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .logout-btn {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+        
+
+        /* Pagination */
+        .pagination {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* Logout Button */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: red;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease-in-out, transform 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: darkred;
+            transform: scale(1.05);
+        }
+
+        .logout-btn img {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+            width: 20%;
+            max-width: 350px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #confirm-logout {
+            background: red;
+            color: white;
+        }
+
+        #cancel-logout {
+            background: gray;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Semester Courses</h1>
+    <div id="logout-modal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to logout?</p>
+            <button id="confirm-logout">Yes</button>
+            <button id="cancel-logout">No</button>
+        </div>
+    </div>
+
+    <!-- Search & Sort Controls -->
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search subjects...">
+        <select id="filter">
+            <option value="all">All</option>
+            <option value="CORE">Core</option>
+            <option value="ELECTIVE">Elective</option>
+            <option value="Lab">Lab</option>
+        </select>
+        <select id="sort">
+            <option value="az">Sort: A-Z</option>
+            <option value="za">Sort: Z-A</option>
+        </select>
+    </div>
+
+    <!-- Courses List -->
+    <div class="courses" id="course-list"></div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <button id="prevBtn">Previous</button>
+        <span id="page-info"></span>
+        <button id="nextBtn">Next</button>
+    </div>
+
+    <!-- Logout Button -->
+    <button class="logout-btn" id="logout">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828490.png" alt="Logout">
+        Logout
+    </button>
+
+    <script>
+        const courses = [
+            { name: "Mathematics - I", semester: 1, type: "Core" },
+            { name: "English for Engineers - I", semester: 1, type: "Core" },
+            { name: "Engineering Physics", semester: 1, type: "Core" },
+            { name: "Applied Chemistry - I", semester: 1, type: "Core" },
+            { name: "Basic Electrical and Electronics Engineering", semester: 1, type: "Core" },
+            { name: "Problem Solving Using Python Programming", semester: 1, type: "Core" },
+            { name: "Physics and Chemistry Laboratory", semester: 1, type: "Lab" },
+            { name: "Python Programming Laboratory", semester: 1, type: "Lab" },
+            { name: "Basic Electrical and Electronics Engineering Laboratory", semester: 1, type: "Lab" },
+            { name: "French", semester: 1, type: "Elective" },
+            { name: "English for Engineers - II", semester: 2, type: "Core" },
+            { name: "Discrete Mathematics", semester: 2, type: "Core" },
+            { name: "Material Science", semester: 2, type: "Core" },
+            { name: "Applied Chemistry - II", semester: 2, type: "Core" },
+            { name: "Programming in C", semester: 2, type: "Core" },
+            { name: "Engineering Graphics", semester: 2, type: "Core" },
+            { name: "Workshop Practice", semester: 2, type: "Lab" },
+            { name: "C Programming Laboratory", semester: 2, type: "Lab" },
+            { name: "French", semester: 2, type: "Elective" },
+            { name: "Probability and Statistics", semester: 3, type: "Core" },
+            { name: "Data Structures", semester: 3, type: "Core" },
+            { name: "Computer Architecture", semester: 3, type: "Core" },
+            { name: "Computer and Information Ethics", semester: 3, type: "Core" },
+            { name: "Object Oriented Programming", semester: 3, type: "Core" },
+            { name: "Communication Systems", semester: 3, type: "Core" },
+            { name: "Data Structures Laboratory", semester: 3, type: "Lab" },
+            { name: "Object Oriented Programming Laboratory", semester: 3, type: "Lab" },
+            { name: "Environment and Climate Science", semester: 3, type: "Mandatory" },
+            { name: "Soft Skills and Aptitude - I", semester: 3, type: "Elective" },
+            { name: "Numerical and Regression Analysis", semester: 4, type: "Core" },
+            { name: "Operating Systems", semester: 4, type: "Core" },
+            { name: "Database Management Systems", semester: 4, type: "Core" },
+            { name: "Design and Analysis of Algorithms", semester: 4, type: "Core" },
+            { name: "Principles of Management", semester: 4, type: "Core" },
+            { name: "Operating Systems Laboratory", semester: 4, type: "Lab" },
+            { name: "Database Management Systems Laboratory", semester: 4, type: "Lab" },
+            { name: "Soft Skills and Aptitude - II", semester: 4, type: "Elective" },
+            { name: "Essence of Indian Traditional Knowledge", semester: 4, type: "Mandatory" },
+            { name: "Computer Networks", semester: 5, type: "Core" },
+            { name: "Software Engineering", semester: 5, type: "Core" },
+            { name: "Theory of Computation", semester: 5, type: "Core" },
+            { name: "Embedded System Design", semester: 5, type: "Core" },
+            { name: "Computer Networks Laboratory", semester: 5, type: "Lab" },
+            { name: "Software Development Laboratory", semester: 5, type: "Lab" },
+            { name: "Agile Methodologies", semester: 5, type: "Elective" },
+            { name: "Soft Skills and Aptitude - III", semester: 5, type: "Elective" },
+            { name: "NPTEL: Software Testing", semester: 5, type: "Elective" },
+            { name: "DevOps", semester: 6, type: "Core" },
+            { name: "Cloud Security", semester: 6, type: "Core" },
+            { name: "Principles of Compiler Design", semester: 6, type: "Core" },
+            { name: "Full Stack Development", semester: 6, type: "Core" },
+            { name: "Artificial Intelligence", semester: 6, type: "Core" },
+            { name: "Compiler Design Laboratory", semester: 6, type: "Lab" },
+            { name: "Artificial Intelligence Laboratory", semester: 6, type: "Lab" },
+            { name: "Cyber Security", semester: 6, type: "Open Elective" },
+            { name: "Machine Learning", semester: 6, type: "Elective" },
+            { name: "Green Computing", semester: 6, type: "Elective" },
+            { name: "Front End Web Development", semester: 7, type: "Core" },
+            { name: "Back End Web Development", semester: 7, type: "Core" },
+            { name: "Blockchain Technologies", semester: 7, type: "Core" },
+            { name: "Cryptography", semester: 7, type: "Core" },
+            { name: "Internet of Things", semester: 7, type: "Core" },
+            { name: "Internet of Things Laboratory", semester: 7, type: "Lab" },
+            { name: "Cloud Computing", semester: 7, type: "Open Elective" },
+            { name: "Human Computer Interaction", semester: 7, type: "Elective" },
+            { name: "Cyber Law and Ethics", semester: 7, type: "Elective" },
+            { name: "Project", semester: 8, type: "Core" }
+        ];
+
+        let currentPage = 1;
+        const coursesPerPage = 4;
+
+        function renderCourses() {
+            const courseList = document.getElementById("course-list");
+            const searchValue = document.getElementById("search").value.toLowerCase();
+            const filterValue = document.getElementById("filter").value;
+            const sortValue = document.getElementById("sort").value;
+            
+            const selectedSemester = localStorage.getItem("semester");
+            console.log("Selected Semester:", selectedSemester);
+        
+            let filteredCourses = courses.filter(course => 
+                course.semester == selectedSemester &&
+                course.name.toLowerCase().includes(searchValue) &&
+                (filterValue.toLowerCase() === "all" || course.type.toLowerCase() === filterValue.toLowerCase())
+            );
+        
+            if (sortValue === "az") {
+                filteredCourses.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortValue === "za") {
+                filteredCourses.sort((a, b) => b.name.localeCompare(a.name));
+            }
+        
+            const start = (currentPage - 1) * coursesPerPage;
+            const end = start + coursesPerPage;
+            const paginatedCourses = filteredCourses.slice(start, end);
+        
+            courseList.innerHTML = paginatedCourses.map(course => `
+                <div class="course">
+                    <h3>${course.name}</h3>
+                    <p>Semester: ${course.semester} | Type: ${course.type}</p>
+                </div>
+            `).join("");
+        
+            document.getElementById("page-info").innerText = `Page ${currentPage}`;
+            document.getElementById("prevBtn").disabled = currentPage === 1;
+            document.getElementById("nextBtn").disabled = end >= filteredCourses.length;
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const selectedSemester = localStorage.getItem("semester");
+            if (!selectedSemester) {
+                window.location.href = "semester.html";
+            }
+            renderCourses();
+        });
+        
+        document.getElementById("search").addEventListener("input", () => {
+            currentPage = 1;
+            renderCourses();
+        });
+
+        document.getElementById("filter").addEventListener("change", () => {
+            currentPage = 1;
+            renderCourses();
+        });
+
+        document.getElementById("sort").addEventListener("change", () => {
+            currentPage = 1;
+            renderCourses();
+        });
+
+        document.getElementById("prevBtn").addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderCourses();
+            }
+        });
+
+        document.getElementById("nextBtn").addEventListener("click", () => {
+            currentPage++;
+            renderCourses();
+        });
+
+        document.getElementById("logout").addEventListener("click", () => {
+            const modal = document.getElementById("logout-modal");
+            modal.style.display = "flex";
+            setTimeout(() => {
+                modal.querySelector(".modal-content").style.transform = "scale(1.2)";
+            }, 50);
+        });
+
+        document.getElementById("cancel-logout").addEventListener("click", () => {
+            const modal = document.getElementById("logout-modal");
+            modal.querySelector(".modal-content").style.transform = "scale(1)";
+            setTimeout(() => {
+                modal.style.display = "none";
+            }, 200);
+        });
+
+        document.getElementById("confirm-logout").addEventListener("click", () => {
+            localStorage.removeItem("authenticated");
+            window.location.href = "index.html";
+        });
+
+        document.getElementById("cancel-logout").addEventListener("click", () => {
+            document.getElementById("logout-modal").style.display = "none";
+        });
+
+        renderCourses();
+    </script>
+</body>
+</html>
