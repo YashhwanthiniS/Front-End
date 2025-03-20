@@ -72,13 +72,13 @@ Adjust UI styles in `style.css` for a different look & feel.
 # 🔥 Example Output
 
 📌 **Login Page:**
-![Login Page](img/login_screenshot.png)
+![Image](https://github.com/user-attachments/assets/26724ee2-36ae-4ba9-832e-71f350fe7abf)
 
 📌 **Semester Selection:**
-![Semester Selection](img/semester_screenshot.png)
+![Image](https://github.com/user-attachments/assets/94a034a8-d174-4047-a0c3-12c6cef640a9)
 
 📌 **Course Dashboard:**
-![Dashboard](img/dashboard_screenshot.png)
+![Image](https://github.com/user-attachments/assets/36252b77-02b4-4214-a397-afaeed362049)
 
 ---
 
